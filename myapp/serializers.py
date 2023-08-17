@@ -30,11 +30,9 @@ class UserSerializer(serializers.ModelSerializer):
         if self.validated_data['password'] != self.validated_data['password2']:
             raise serializers.ValidationError({'password': "Passwords must match!"})
 
-        user = CustomUser(
+        user = CustomUser.objects.create_user(
             email=self.validated_data['email'],
             password=self.validated_data['password']
         )
-
-        user.save()
 
         return user

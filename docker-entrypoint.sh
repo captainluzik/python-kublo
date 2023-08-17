@@ -12,4 +12,4 @@ done
 
 python manage.py collectstatic --noinput
 
-python manage.py runserver
+python manage.py runserver 8000

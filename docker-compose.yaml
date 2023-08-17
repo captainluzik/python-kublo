@@ -5,11 +5,11 @@ services:
         restart: unless-stopped
         image: postgres:15
         env_file:
-          - ./.env
+          - .env
         volumes:
           - postgres_data:/var/lib/postgresql/data/
         networks:
-          - project_network
+          - bobik300_network
 
   django:
         restart: unless-stopped
@@ -17,12 +17,12 @@ services:
           context: .
           dockerfile: Dockerfile
         env_file:
-          - ./.env
+          - .env
         volumes:
           - static_volume:/app/static
           - media_volume:/app/media
         networks:
-          - project_network
+          - bobik300_network
         depends_on:
           - postgres
 
@@ -32,5 +32,5 @@ volumes:
     media_volume:
     postgres_data:
 networks:
-  project_network:
+  bobik300_network:
     driver: bridge
