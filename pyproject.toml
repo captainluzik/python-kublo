@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "djangochallenge"
+version = "0.1.0"
+description = ""
+authors = ["Reboot9 <sergejskorikjr@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "4.2.4"
+asgiref = "3.7.2"
+sqlparse = "0.4.4"
+typing-extensions = "4.7.1"
+gunicorn = "^21.2.0"
+psycopg2-binary = "^2.9.7"
+djangorestframework = "^3.14.0"
+djangorestframework-simplejwt = "^5.2.2"
+python-dotenv = "^1.0.0"
+django-rest-swagger = "^2.2.0"
+drf-yasg = "^1.21.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
