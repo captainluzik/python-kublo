@@ -141,6 +141,12 @@ SWAGGER_SETTINGS = {
     "LOGOUT_URL": "/admin/logout/"
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
 try:
     from .local import *
 except:

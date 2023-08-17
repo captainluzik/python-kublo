@@ -1,9 +1,10 @@
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .models import CustomUser
 
 
 class UserSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(write_only=True)
+    password2 = serializers.CharField(write_only=True, validators=[validate_password])
 
     class Meta:
         model = CustomUser
@@ -13,7 +14,8 @@ class UserSerializer(serializers.ModelSerializer):
             'password2'
         ]
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True,
+                         'validators': [validate_password]}
         }
 
     def is_valid(self, *, raise_exception=False) -> bool:
