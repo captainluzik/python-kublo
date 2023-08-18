@@ -11,13 +11,26 @@ class UserSerializer(serializers.ModelSerializer):
         min_length=8,
         write_only=True
     )
-    # token = serializers.CharField(max_length=255, read_only=True)
+    password_confirm = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
+
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'password')
+        fields = ('email', 'password', 'password_confirm', )
 
     def create(self, validated_data):
+        validated_data.pop('password_confirm')
         return CustomUser.objects.create_user(**validated_data)
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password_confirm']:
+            raise serializers.ValidationError("Passwords do not match")
+
+        return attrs
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Customizes JWT default Serializer to add more information about user"""

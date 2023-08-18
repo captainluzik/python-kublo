@@ -28,22 +28,24 @@ class UserCreateAPIView(generics.CreateAPIView):
             },
             required=["username", "email", "password"],
         ),
-        responses={201: 'Registration is successfull'}
+        responses={201: 'Registration is successfull',
+                   400: 'Bad Request'}
     )
     def post(self, request, *args, **kwargs) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        serializer = UserSerializer(data=request.data)
 
-        user = serializer.instance
+        if serializer.is_valid():
+            user = serializer.save()
 
-        refresh = RefreshToken.for_user(user)
-        tokens = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
+            refresh = RefreshToken.for_user(user)
+            tokens = {
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }
 
-        return Response({'user': serializer.data, 'tokens': tokens}, status=status.HTTP_201_CREATED)
+            return Response({'user': serializer.data, 'tokens': tokens}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
