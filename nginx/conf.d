@@ -9,8 +9,8 @@ server {
         proxy_set_header X-Forwarded-Host $host;
     }
 
-    location /static { alias /app/static; }
+    location static { alias /app/static/; }
 
-    location /media { alias /app/media; }
+    location media { alias /app/media/; }
 
 }
