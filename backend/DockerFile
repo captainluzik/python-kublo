@@ -6,13 +6,13 @@ ENV PYTHONBUFFERED=1 \
 
 RUN pip install "poetry==$POETRY_VERSION"
 
-WORKDIR /djangoChallenge
+WORKDIR /python-kublo
 
 COPY pyproject.toml poetry.lock backend/docker-entrypoint.sh ./
 
 RUN poetry install --no-interaction --no-ansi --no-dev
 
-COPY . /djangoChallenge
+COPY . /python-kublo
 EXPOSE 8000
 RUN chmod +x docker-entrypoint.sh
 ENTRYPOINT ["./docker-entrypoint.sh"]

@@ -23,6 +23,7 @@ class CustomUserManager(BaseUserManager):
 
         return self.create_user(email, password, **extra_fields)
 
+
 class CustomUser(AbstractUser):
     # remove username field so only email are required to make account
     username = None
@@ -31,5 +32,6 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['password']
 
     objects = CustomUserManager()
+
     def __str__(self):
         return f'{self.email}'

@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-until cd /djangoChallenge
+until cd /python-kublo
 do
   echo "Wait for server volume..."
 done
@@ -10,6 +10,16 @@ until python manage.py migrate
 do
   echo "Waiting for postgres ready"
 done
+
+# Run tests
+echo "Running tests..."
+# If tests fail, exit the script
+if python manage.py test; then
+  echo "Tests passed."
+else
+  echo "Tests failed, exit."
+  exit 1
+fi
 
 python manage.py collectstatic --noinput
 
