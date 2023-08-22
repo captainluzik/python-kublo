@@ -23,7 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
         if not res:
             if 'email' in self.errors:
                 raise serializers.ValidationError({'email': "Current email is invalid or already taken!"})
-
             return res
         return res
 

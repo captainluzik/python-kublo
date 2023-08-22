@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import models
 
@@ -7,12 +8,22 @@ class CustomUserManager(BaseUserManager):
     def create_user(self,
                     email: str = None,
                     password: str = None) -> object:
+        if not email:
+            raise ValidationError("The Email field is required!")
+
+        if "@" not in email or "." not in email:
+            raise ValidationError("Invalid email format!")
+
+        if not password:
+            raise ValidationError("The Password field is required!")
+
         user = self.model(
             email=self.normalize_email(email),
             password=password,
         )
 
         user.is_active = True
+        user.is_admin = False
         user.set_password(password)
         user.save(using=self._db)
 
@@ -21,6 +32,15 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self,
                          email: str = None,
                          password: str = None) -> object:
+        if not email:
+            raise ValidationError("The Email field is required!")
+
+        if "@" not in email or "." not in email:
+            raise ValidationError("Invalid email format!")
+
+        if not password:
+            raise ValidationError("The Password field is required!")
+
         user = self.model(
             email=self.normalize_email(email),
             password=password,
