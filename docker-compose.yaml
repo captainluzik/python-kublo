@@ -8,9 +8,6 @@ services:
       - ./.env
     ports:
       - "5432:5432"
-    profiles:
-      - local_dev
-      - full_run
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
@@ -24,12 +21,10 @@ services:
     env_file:
       - ./.env
     ports:
-      - "8080:8000"
+      - "9999:8000"
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
-    profiles:
-      - full_run
     networks:
       - axeratos_network
     depends_on:

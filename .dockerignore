@@ -2,6 +2,7 @@
 
 !apps
 !core
+!tests
 !entrypoint.sh
 !manage.py
 !poetry.lock

@@ -10,13 +10,14 @@ RUN pip install "poetry==$POETRY_VERSION"
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock entrypoint.sh ./
+COPY pyproject.toml entrypoint.sh ./
 
 RUN poetry install --no-interaction --no-ansi --no-dev --no-root
 
 COPY ./core core
 COPY ./apps apps
 COPY ./manage.py manage.py
+COPY ./tests tests
 
 RUN chmod +x entrypoint.sh
 
