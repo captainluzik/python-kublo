@@ -11,6 +11,7 @@ local.py
 
 poetry.lock
 
+.idea
 
 # Distribution / packaging
 .Python
