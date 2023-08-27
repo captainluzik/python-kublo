@@ -1,5 +1,7 @@
+from django.contrib.auth import authenticate, login
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.response import Response
 from rest_framework_simplejwt import views as jwt_views
 
 
@@ -22,7 +24,11 @@ class CustomTokenObtainPairView(jwt_views.TokenObtainPairView):
         responses={200: "OK",
                    401: "No active account found with the given credentials"},
     )
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> Response:
+        user = authenticate(email=request.data['email'],
+                            password=request.data['password'])
+        if user is not None:
+            login(request, user)
         return super().post(request, *args, **kwargs)
 
 
@@ -45,5 +51,5 @@ class CustomTokenRefreshView(jwt_views.TokenRefreshView):
         responses={200: "OK",
                    401: "No active account found with the given credentials"},
     )
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs) -> Response:
         return super().post(request, *args, **kwargs)
