@@ -24,3 +24,7 @@ docker-compose run --rm app sh -c "python manage.py test" - it'll run unit tests
 docker-compose run --rm app sh -c "python manage.py makemigrations" - it'll make migration file
 docker-compose run --rm app sh -c "python manage.py createsuperuser" - it'll create superuser
 
+# Navigation
+127.0.0.1:8000/admin - admin page
+127.0.0.1:8000/create - user creating page
+
