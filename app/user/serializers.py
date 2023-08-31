@@ -1,8 +1,13 @@
 """
 Seralizers for user
 """
-from django.contrib.auth import get_user_model
+from django.contrib.auth import (
+    get_user_model,
+    authenticate,
+)
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.utils.translation import gettext as _
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -21,3 +26,18 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """creates user with encrypted pass"""
         return get_user_model().objects.create_user(**validated_data)
+
+
+class AuthTokenSerializer(TokenObtainPairSerializer):
+    """represents serializer for user auth token"""
+    email = serializers.EmailField()
+    password = serializers.CharField(
+        style={'input_type': 'password'},
+        trim_whitespace=False,
+    )
+
+    def validate(self, attrs):
+        """validates and authenticate the user"""
+        user = super().validate(attrs)
+        attrs['user'] = user
+        return attrs
