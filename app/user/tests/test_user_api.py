@@ -77,10 +77,8 @@ class PublicUserApiTests(TestCase):
             'password': user_details['password']
         }
         res = self.client.post(TOKEN_URL, payload)
-
-        self.assertIn('user', res.data)
-        self.assertIn('access', res.data['user'])
-        self.assertIn('refresh', res.data['user'])
+        self.assertIn('access', res.data)
+        self.assertIn('refresh', res.data)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_create_token_wrong_password(self):
@@ -98,7 +96,8 @@ class PublicUserApiTests(TestCase):
         }
         res = self.client.post(TOKEN_URL, payload)
 
-        self.assertNotIn('user', res.data)
+        self.assertNotIn('access', res.data)
+        self.assertNotIn('refresh', res.data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_token_wrong_email(self):
@@ -117,6 +116,7 @@ class PublicUserApiTests(TestCase):
         res = self.client.post(TOKEN_URL, payload)
 
         self.assertNotIn('user', res.data)
+        self.assertNotIn('refresh', res.data)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_token_blank_password(self):
@@ -135,4 +135,5 @@ class PublicUserApiTests(TestCase):
         res = self.client.post(TOKEN_URL, payload)
 
         self.assertNotIn('user', res.data)
+        self.assertNotIn('refresh', res.data)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

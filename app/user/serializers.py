@@ -36,4 +36,4 @@ class AuthTokenSerializer(TokenObtainPairSerializer):
         """validates and authenticate the user"""
         user = super().validate(attrs)
         attrs['user'] = user
-        return attrs
+        return user
