@@ -14,4 +14,5 @@ class CreateUserView(generics.CreateAPIView):
 
 
 class LoginView(TokenObtainPairView):
+    """represents user log-in"""
     serializer_class = AuthTokenSerializer
