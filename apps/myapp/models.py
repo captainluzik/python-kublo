@@ -83,18 +83,3 @@ class CustomUser(AbstractBaseUser):
     def is_staff(self) -> models.BooleanField:
         return self.is_admin
 
-
-class Cabinet(models.Model):
-    user = models.OneToOneField(CustomUser, related_name="cabinet", on_delete=models.CASCADE)
-    full_name = models.CharField(max_length=255, validators=[MinLengthValidator(4)])
-    partnership_code = models.CharField(max_length=100, unique=True, validators=[MinLengthValidator(3)])
-    investment_sector = models.CharField(max_length=100, validators=[MinLengthValidator(3)])
-    deposit_term = models.DateTimeField()
-    total_deposit_amount = models.BigIntegerField(validators=[MinValueValidator(0)])
-    interest_rate = models.DecimalField(max_digits=9, decimal_places=5, validators=[MinValueValidator(0)])
-    received_dividends_amount = models.BigIntegerField(validators=[MinValueValidator(0)])
-    referral_partners_list = (models.CharField(max_length=200,
-                                               validators=[MinLengthValidator(2)]))
-
-    def __str__(self):
-        return self.full_name

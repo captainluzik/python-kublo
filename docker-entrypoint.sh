@@ -13,7 +13,7 @@ done
 python manage.py collectstatic --noinput
 
 export DJANGO_TEST_DB_REMOVAL=yes
-if python manage.py test --failfast; then
+if python manage.py test --failfast --no-input; then
     echo "Django tests passed"
 else
     echo "Django tests failed"
@@ -22,4 +22,4 @@ fi
 
 
 
-gunicorn kublo.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 4
+gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 4

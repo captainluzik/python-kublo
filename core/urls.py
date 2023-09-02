@@ -1,5 +1,5 @@
 """
-URL configuration for kublo project.
+URL configuration for core project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.2/topics/http/urls/
@@ -21,7 +21,6 @@ from django.urls import path, include, re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from .core_views import CustomTokenRefreshView, CustomTokenObtainPairView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -42,8 +41,6 @@ urlpatterns = [
                           name='schema-json'),
                   re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
                   re_path(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-                  path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-                  path('api/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
-                  path('api/', include('myapp.urls')),
+                  path('api/', include('apps.myapp.urls')),
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + \
               static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

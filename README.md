@@ -68,17 +68,10 @@ sudo docker run hello-world
 
 #3 Run ```docker-compose.yaml``` file:
 
-##3.1 With aborting containers building on tests failure:
-
 ```
 sudo docker-compose up --build --abort-on-container-exit
 ```
 
-##3.2 Without aborting containers building on tests failure:
-
-```
-sudo docker-compose up -d --build 
-```
 
 ###4 Now, open your browser and go to ```http://0.0.0.0:80/swagger/```
 

@@ -1,4 +1,6 @@
 from pprint import pprint
+
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from rest_framework import serializers, status
@@ -219,3 +221,30 @@ class TestUserCreationView(APITestCase):
         response = self.client.post('/api/create-user/', invalid_data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(CustomUser.objects.count(), 0)
+
+
+class TestCustomTokenObtainPairView(APITestCase):
+    def setUp(self) -> None:
+        self.user = get_user_model()
+
+    def test_post_valid_data(self) -> None:
+        user_data = {
+            'email': "test@example.com",
+            'password': "Testpassword123"
+        }
+        self.user.objects.create_user(**user_data)
+        response = self.client.post('/api/token/', user_data, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+
+    def test_post_invalid_data(self) -> None:
+        user_data = {
+            'email': "test@example.com",
+            'password': "Testpassword123"
+        }
+        self.user.objects.create_user(**user_data)
+        user_data['password'] = 'invalid_password'
+
+        response = self.client.post('/api/token/', user_data, format='json')
+        self.assertEqual(response.status_code, 401)
