@@ -1,15 +1,20 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api import serializers
 from api.models import CustomUser
 from api.serializers import UserSerializer
+
+# CustomUser = get_user_model()
+
 
 class UserCreateAPIView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
@@ -48,6 +53,10 @@ class UserCreateAPIView(generics.CreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = serializers.CustomTokenObtainPairSerializer
+    def get_object(self):
+        return CustomUser.objects.get(id=self.request.user.id)

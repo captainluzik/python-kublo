@@ -25,7 +25,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    # remove username field so only email are required to make account
+    # remove username field so only email is required to make account
     username = None
     email = models.EmailField(db_index=True, unique=True)
     USERNAME_FIELD = 'email'
