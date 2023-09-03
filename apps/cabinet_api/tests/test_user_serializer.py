@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from rest_framework.exceptions import ValidationError
 
-from api.serializers import UserSerializer
+from apps.cabinet_api.serializers import UserSerializer
 
 CustomUser = get_user_model()
 

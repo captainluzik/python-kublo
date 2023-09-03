@@ -8,11 +8,14 @@ RUN pip install "poetry==$POETRY_VERSION"
 
 WORKDIR /python-kublo
 
-COPY pyproject.toml poetry.lock backend/docker-entrypoint.sh ./
+COPY pyproject.toml poetry.lock docker-entrypoint.sh ./
 
-RUN poetry install --no-interaction --no-ansi --no-dev
+RUN poetry install --no-interaction --no-ansi --no-dev --no-root
 
-COPY . /python-kublo
+COPY ./core core
+COPY ./apps apps
+COPY ./manage.py manage.py
+
 EXPOSE 8000
 RUN chmod +x docker-entrypoint.sh
 ENTRYPOINT ["./docker-entrypoint.sh"]

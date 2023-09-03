@@ -17,12 +17,12 @@ services:
     restart: unless-stopped
     build:
       context: .
-      dockerfile: backend/DockerFile
+      dockerfile: DockerFile
     env_file:
       - ./.env
     volumes:
-      - static_volume:/djangoChallenge/static
-      - media_volume:/djangoChallenge/media
+      - static_volume:/core/static
+      - media_volume:/core/media
     networks:
       - reboot_network
     ports:

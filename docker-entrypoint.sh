@@ -23,4 +23,4 @@ fi
 
 python manage.py collectstatic --noinput
 
-gunicorn djangoChallenge.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 4
+gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 4

@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_remove_customuser_username'),
+        ('cabinet_api', '0002_remove_customuser_username'),
     ]
 
     operations = [

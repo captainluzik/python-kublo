@@ -1,5 +1,3 @@
-from django.contrib.auth import get_user_model
-from django.shortcuts import render
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
@@ -7,11 +5,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
 
-from api import serializers
-from api.models import CustomUser
-from api.serializers import UserSerializer
+from apps.cabinet_api.models import CustomUser
+from apps.cabinet_api.serializers import UserSerializer
 
 # CustomUser = get_user_model()
 
