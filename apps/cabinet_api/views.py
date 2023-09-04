@@ -7,7 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from apps.cabinet_api.models import CustomUser
-from apps.cabinet_api.serializers import UserSerializer
+from apps.cabinet_api.serializers.user import UserSerializer
 
 # CustomUser = get_user_model()
 
