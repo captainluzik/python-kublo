@@ -17,9 +17,11 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(PersonalAccount)
 class PersonalAccountAdmin(admin.ModelAdmin):
-    list_display = ('get_partners', 'deposit_term', 'total_deposit_amount', 'interest_rate', 'dividend_amount',)
+    list_display = ('user', 'get_partners', 'deposit_term',
+                    'total_deposit_amount', 'interest_rate', 'dividend_amount',)
     list_filter = ('investment_sector', 'deposit_term',)
     search_fields = ('partner_code', 'user__email', 'investment_sector',)
+    raw_id_fields = ('user', )
 
     def get_partners(self, obj):
         return ", ".join([partner.email for partner in obj.partners.all()])

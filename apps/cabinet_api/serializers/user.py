@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from apps.cabinet_api.models import CustomUser
+from apps.cabinet_api.models import CustomUser, PersonalAccount
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,3 +29,19 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Passwords do not match")
 
         return attrs
+
+
+class PersonalAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalAccount
+        fields = (
+            'id', 'full_name', 'partner_code', 'investment_sector', 'deposit_term', 'total_deposit_amount',
+            'interest_rate', 'dividend_amount', 'partners',
+        )
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance

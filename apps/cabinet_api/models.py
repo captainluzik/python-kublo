@@ -1,7 +1,10 @@
+from datetime import timedelta
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
 from django.db import models
+from django.utils.crypto import get_random_string
 
 from core import settings
 
@@ -39,23 +42,38 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return f'{self.email}'
 
+    def generate_unique_partner_code(self):
+        """Method to make sure that generated random string is unique"""
+        while True:
+            partner_code = get_random_string(10)
+            if not PersonalAccount.objects.filter(partner_code=partner_code).exists():
+                return partner_code
+
+    def save(self, *args, **kwargs):
+        """Method override to create personal account model instance too"""
+        super().save(*args, **kwargs)
+
+        # check if user already have personal account and create one if it doesn't exist
+        if not hasattr(self, 'account'):
+            PersonalAccount.objects.create(
+                user=self,
+                partner_code=self.generate_unique_partner_code(),
+                investment_sector="Default Sector",
+
+            )
+
 
 class PersonalAccount(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='account', on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=255, validators=[
-        validators.MinLengthValidator(2, message="First name should be at least 2 characters long"),
-    ])
-    last_name = models.CharField(max_length=255, validators=[
-        validators.MinLengthValidator(2, message="Last name should be at least 2 characters long"),
-    ])
+
     partner_code = models.CharField(max_length=10, unique=True)
     investment_sector = models.CharField(max_length=50, validators=[
         validators.MinLengthValidator(2, message="Investment sector should be at least 2 characters long"),
     ])
-    deposit_term = models.DurationField()
-    total_deposit_amount = models.DecimalField(max_digits=20, decimal_places=10)
-    interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
-    dividend_amount = models.DecimalField(max_digits=20, decimal_places=10)
+    deposit_term = models.DurationField(default=timedelta(days=30))
+    total_deposit_amount = models.DecimalField(max_digits=20, decimal_places=10, default=0)
+    interest_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    dividend_amount = models.DecimalField(max_digits=20, decimal_places=10, default=0)
 
     partners = models.ManyToManyField(CustomUser, related_name='partner', blank=True)
 
@@ -66,7 +84,7 @@ class PersonalAccount(models.Model):
 
     @property
     def full_name(self):
-        return f'{self.first_name} {self.last_name}'
+        return f'{self.user.first_name} {self.user.last_name}'
 
     def __str__(self):
         return f'{self.user.email} - {self.investment_sector}'
