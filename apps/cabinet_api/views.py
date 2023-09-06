@@ -1,13 +1,15 @@
+from django.shortcuts import get_object_or_404
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.cabinet_api.models import CustomUser
-from apps.cabinet_api.serializers.user import UserSerializer
+from apps.cabinet_api.models import CustomUser, PersonalAccount
+from apps.cabinet_api.serializers.user import UserSerializer, PersonalAccountSerializer
+
 
 # CustomUser = get_user_model()
 
@@ -55,4 +57,29 @@ class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        return CustomUser.objects.get(id=self.request.user.id)
+        return self.request.user
+
+    def put(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class AdminUserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+
+    def get_object(self):
+        user_id = self.kwargs.get('pk')
+
+        return get_object_or_404(CustomUser, pk=user_id)
+
+    def put(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

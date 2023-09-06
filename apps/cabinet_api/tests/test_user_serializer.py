@@ -28,8 +28,11 @@ class UserSerializerTestCase(TestCase):
             'password_confirm': 'pass12345',  # passwords doesn't match
         }
         serializer = UserSerializer(data=data)
-        with self.assertRaises(ValidationError):
-            serializer.is_valid(raise_exception=True)
+        with self.assertRaises(ValidationError) as context:
+            serializer.create(data)
+
+        # Check if the validation error message contains the expected text
+        self.assertIn("Passwords do not match", str(context.exception))
 
     def test_duplicate_email(self):
         CustomUser.objects.create_user(
