@@ -1,5 +1,5 @@
 """
-command that waits for db available to avoid crush app in case
+command that waits for db available to avoid crush core in case
 if db will be not connected first
 call it 'python manage.py wait_for_db'
 """
