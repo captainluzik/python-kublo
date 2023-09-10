@@ -13,6 +13,8 @@ poetry.lock
 
 .idea
 
+/static
+
 # Distribution / packaging
 .Python
 build/

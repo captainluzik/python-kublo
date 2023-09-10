@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 import os
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'apps.myapp.apps.MyappConfig',
+    'rest_framework_simplejwt',
     'drf_yasg'
 ]
 
@@ -148,13 +149,23 @@ SWAGGER_SETTINGS = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ],
+    ]
 }
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+FIXTURE_DIRS = [
+    'apps/myapp/fixtures/myapp/',
+]
+
 try:
     from .local import *
-except:
+except ImportError:
     pass
 

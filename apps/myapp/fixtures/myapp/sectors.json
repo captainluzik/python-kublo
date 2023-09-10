@@ -1,0 +1,114 @@
+[
+    {
+        "model": "myapp.investmentsector",
+        "pk": 1,
+        "fields": {
+            "sector": "Technology"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 2,
+        "fields": {
+            "sector": "Healthcare"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 3,
+        "fields": {
+            "sector": "Consumer Discretionary"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 4,
+        "fields": {
+            "sector": "Consumer Staples"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 5,
+        "fields": {
+            "sector": "Financials"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 6,
+        "fields": {
+            "sector": "Industrials"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 7,
+        "fields": {
+            "sector": "Energy"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 8,
+        "fields": {
+            "sector": "Materials"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 9,
+        "fields": {
+            "sector": "Real Estate"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 10,
+        "fields": {
+            "sector": "Telecommunication Services"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 11,
+        "fields": {
+            "sector": "Consumer Services"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 12,
+        "fields": {
+            "sector": "Transportation"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 13,
+        "fields": {
+            "sector": "Utilities"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 14,
+        "fields": {
+            "sector": "Infrastructure"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 15,
+        "fields": {
+            "sector": "Renewable Energy"
+        }
+    },
+    {
+        "model": "myapp.investmentsector",
+        "pk": 16,
+        "fields": {
+            "sector": "Environmental, Social, and Governance (ESG)"
+        }
+    }
+]

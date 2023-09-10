@@ -1,11 +1,12 @@
-from pprint import pprint
-
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.test import TestCase
+
 from rest_framework import serializers, status
 from rest_framework.test import APITestCase
-from .models import CustomUser
+
+from .models import CustomUser, InvestmentSector, PersonalCabinet
 from .serializers import UserSerializer
 
 
@@ -139,12 +140,18 @@ class TestCustomUser(TestCase):
 
 class TestUserSerializer(TestCase):
     def setUp(self) -> None:
+        InvestmentSector.objects.create(sector="Test")
         self.email = 'test@gmail.com'
         self.password1 = self.password2 = 'Testpassword123'
 
+        from datetime import datetime, timedelta
+        one_year_term = datetime.now().date() + timedelta(days=365)
+
         self.data = {
-            'email': self.email,
-            'password': self.password1,
+            'email': self.email, 'first_name': 'Mr Solo',
+            'last_name': 'Parker', 'partnership_code': 'PROMO123',
+            'investment_sector': 'Test', 'deposit_term': one_year_term,
+            'interest_rate': 1.342, 'password': self.password1,
             'password2': self.password2
         }
 
@@ -161,7 +168,7 @@ class TestUserSerializer(TestCase):
 
     def test_passwords_not_matching(self) -> None:
         invalid_data = self.data.copy()
-        invalid_data['password2'] = "sdfssgsgdf"
+        invalid_data['password2'] = "invalid password"
         serializer = UserSerializer(data=invalid_data)
         self.assertTrue(serializer.is_valid())
         with self.assertRaises(serializers.ValidationError) as e:
@@ -170,7 +177,7 @@ class TestUserSerializer(TestCase):
 
     def test_invalid_email(self) -> None:
         invalid_data = self.data.copy()
-        invalid_data['email'] = "sdfssgsgdf"
+        invalid_data['email'] = "invalid email"
         serializer = UserSerializer(data=invalid_data)
         with self.assertRaises(serializers.ValidationError) as e:
             self.assertFalse(serializer.is_valid())
@@ -197,9 +204,16 @@ class TestUserSerializer(TestCase):
 
 class TestUserCreationView(APITestCase):
     def setUp(self) -> None:
+        InvestmentSector.objects.create(sector="Test")
+
+        from datetime import datetime, timedelta
+        one_year_term = datetime.now().date() + timedelta(days=365)
+
         self.data = {
-            'email': 'test@gmail.com',
-            'password': 'Testpassword123',
+            'email': 'test@gmail.com', 'first_name': 'Mr Solo',
+            'last_name': 'Parker', 'partnership_code': 'PROMO123',
+            'investment_sector': 'Test', 'deposit_term': one_year_term,
+            'interest_rate': 1.342, 'password': 'Testpassword123',
             'password2': 'Testpassword123'
         }
 
@@ -223,7 +237,7 @@ class TestUserCreationView(APITestCase):
         self.assertEqual(CustomUser.objects.count(), 0)
 
 
-class TestCustomTokenObtainPairView(APITestCase):
+class TestDecoratedTokenObtainPairView(APITestCase):
     def setUp(self) -> None:
         self.user = get_user_model()
 
@@ -248,3 +262,85 @@ class TestCustomTokenObtainPairView(APITestCase):
 
         response = self.client.post('/api/token/', user_data, format='json')
         self.assertEqual(response.status_code, 401)
+
+
+class TestPersonalCabinet(TestCase):
+    def setUp(self) -> None:
+        self.user = CustomUser.objects.create_user(
+            email="test@gmail.com",
+            password="Testpassword123"
+        )
+
+        InvestmentSector.objects.create(sector="AI")
+
+        from datetime import datetime, timedelta
+        one_year_term = datetime.now().date() + timedelta(days=365)
+
+        self.data = {
+            'user': self.user,
+            'first_name': 'Tester',
+            'last_name': 'Testenko',
+            'partnership_code': 'PROMO123',
+            'investment_sector': 'AI',
+            'deposit_term': one_year_term,
+            'interest_rate': 12.412
+        }
+
+        self.personal_cabinet = PersonalCabinet.objects.create(
+            **self.data
+        )
+
+    def test_personal_cabinet_creation_valid_data(self) -> None:
+        self.assertIsNotNone(self.personal_cabinet)
+        self.assertEqual(self.personal_cabinet.user, self.user)
+        self.assertEqual(self.personal_cabinet.first_name, self.data['first_name'])
+        self.assertEqual(self.personal_cabinet.last_name, self.data['last_name'])
+        self.assertEqual(self.personal_cabinet.partnership_code, self.data['partnership_code'])
+        self.assertEqual(self.personal_cabinet.investment_sector, self.data['investment_sector'])
+        self.assertEqual(self.personal_cabinet.deposit_term, self.data['deposit_term'])
+        self.assertEqual(self.personal_cabinet.interest_rate, self.data['interest_rate'])
+
+    def test_personal_cabinet_creation_invalid_data(self) -> None:
+        invalid_data = self.data.copy()
+        invalid_data['user'] = None
+
+        with self.assertRaises(IntegrityError):
+            personal_cabinet = PersonalCabinet.objects.create(
+                **invalid_data
+            )
+
+            self.assertIsNone(personal_cabinet)
+            self.assertEqual(PersonalCabinet.objects.all().count(), 0)
+
+    def test_refferal_parthners_list(self) -> None:
+        self.assertIs(type(self.personal_cabinet.referral_partners_list), list)
+
+    def test_total_deposit_amount(self) -> None:
+        self.assertIs(type(self.personal_cabinet.total_deposit_amount), float)
+
+    def test_received_dividents_amount(self) -> None:
+        self.assertIs(type(self.personal_cabinet.received_dividends_amount), float)
+
+    def test_full_name(self) -> None:
+        self.assertEqual(self.personal_cabinet.full_name, 'Tester Testenko')
+
+    def test___str__(self) -> None:
+        self.assertEqual(str(self.personal_cabinet), self.personal_cabinet.full_name)
+
+
+class TestInvestmentSector(TestCase):
+
+    def test_create_sector(self) -> None:
+        sector = InvestmentSector.objects.create(
+            sector="Test"
+        )
+
+        self.assertEqual(InvestmentSector.objects.all().count(), 1)
+        self.assertIsNotNone(sector)
+
+    def test___str__(self) -> None:
+        sector = InvestmentSector.objects.create(
+            sector="Test"
+        )
+
+        self.assertEqual(str(sector), "Test")
