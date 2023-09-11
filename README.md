@@ -77,4 +77,18 @@ sudo docker-compose up --build --abort-on-container-exit
 
 
 
-# Congratulations! You have just successfully ran your containers!
+### Congratulations! You have just successfully ran your containers!
+
+## Create superuser
+
+### Open a new terminal and run this command
+
+```
+sudo docker exec -it python-kublo-django-1 bash
+```
+
+### After that you can create a superuser
+
+```
+python manage.py createsuperuser
+```
