@@ -58,3 +58,19 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
         return user
+
+
+class AllInvestorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalCabinet
+        fields = "__all__"
+
+
+class CabinetUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalCabinet
+        fields = [
+            'partnership_code',
+            'investment_sector',
+            'deposit_term'
+        ]

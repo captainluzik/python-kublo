@@ -90,7 +90,7 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST'),
         'PORT': os.environ.get('DB_POST'),
         'TEST': {
-            'NAME': "test_db"
+            'NAME': "test_db",
         }
     }
 }

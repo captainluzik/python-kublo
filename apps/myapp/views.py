@@ -9,8 +9,9 @@ from django.contrib.auth import authenticate, login
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
-from .serializers import UserSerializer
-from .models import CustomUser
+from .serializers import (UserSerializer, AllInvestorsSerializer,
+                          CabinetUpdateSerializer)
+from .models import CustomUser, PersonalCabinet
 
 
 class UserCreationView(generics.CreateAPIView):
@@ -137,51 +138,8 @@ class DecoratedTokenRefreshView(jwt_views.TokenRefreshView):
 
 
 class PersonalCabinetView(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
 
-    permission_classes = (IsAuthenticated, )
-
-    @swagger_auto_schema(
-        operation_description="Personal cabinet data getter",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                "full_name": openapi.Schema(
-                    title="Full name", type=openapi.TYPE_STRING,
-                    pattern=r"[a-zA-Z_]", max_length=255
-                ),
-                "partnership_code": openapi.Schema(
-                    title="Partnership code", type=openapi.TYPE_STRING,
-                    max_length=100
-                ),
-                "investment_sector": openapi.Schema(
-                    title="Investment sector", type=openapi.TYPE_STRING,
-                    pattern=r"[a-zA-Z]", max_length=100
-                ),
-                "deposit_term": openapi.Schema(
-                    title="Deposit term", type=openapi.TYPE_STRING,
-                    format="date", pattern=r"(\d{1,2}\/\d{1,2}\/\d{4})"
-                ),
-                "interest_rate": openapi.Schema(
-                    title="Interest rate", type=openapi.TYPE_NUMBER,
-                    format="float"
-                ),
-                "referral_partners_list": openapi.Schema(
-                    title="Referral partners", type=openapi.TYPE_ARRAY,
-                    items=openapi.TYPE_STRING
-                ),
-                "total_deposit_amount": openapi.Schema(
-                    title="Deposit amount", type=openapi.TYPE_NUMBER,
-                    format="float"
-                ),
-                "received_dividends_amount": openapi.Schema(
-                    title="Dividends amount", type=openapi.TYPE_NUMBER,
-                    format="float"
-                ),
-            },
-        ),
-        responses={200: "OK",
-                   401: "Authentication credentials were not provided."},
-    )
     def get(self, request, *args, **kwargs) -> Response:
         user = CustomUser.objects.get(id=request.user.id)
 
@@ -195,3 +153,45 @@ class PersonalCabinetView(generics.RetrieveAPIView):
             "Deposit amount": user.cabinet.total_deposit_amount,
             "Dividends amount": user.cabinet.received_dividends_amount
         }, status=status.HTTP_200_OK)
+
+
+class AllInvestorsView(generics.RetrieveAPIView):
+    serializer_class = AllInvestorsSerializer
+    queryset = PersonalCabinet.objects.all()
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs) -> Response:
+        if request.user.is_staff:
+            cabinets = dict()
+            for cab in self.get_queryset():
+                cabinets.update({
+                    f"{cab.user}": {
+                        "ID": cab.id,
+                        "Full name": cab.full_name,
+                        "Partnership code": cab.partnership_code,
+                        "Investment sector": cab.investment_sector,
+                        "Deposit term": cab.deposit_term,
+                        "Interest rate": float(cab.interest_rate),
+                        "Referral partners": cab.referral_partners_list,
+                        "Deposit amount": cab.total_deposit_amount,
+                        "Dividends amount": cab.received_dividends_amount
+                    }
+                })
+
+            return Response(data=cabinets, status=status.HTTP_200_OK)
+
+        return Response({"Access denied": "Only admin can access to this data"},
+                        status=status.HTTP_403_FORBIDDEN)
+
+
+class CabinetUpdateView(generics.UpdateAPIView):
+    queryset = PersonalCabinet.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = CabinetUpdateSerializer
+
+    def put(self, request, *args, **kwargs) -> Response:
+        if request.user.is_staff:
+            return super().put(request, *args, **kwargs)
+
+        return Response({"Access denied": "Only admin can access to this data"},
+                        status=status.HTTP_403_FORBIDDEN)

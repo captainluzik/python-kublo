@@ -5,9 +5,10 @@ from django.test import TestCase
 
 from rest_framework import serializers, status
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import CustomUser, InvestmentSector, PersonalCabinet
-from .serializers import UserSerializer
+from .serializers import UserSerializer, AllInvestorsSerializer
 
 
 class TestCustomUserManager(TestCase):
@@ -344,3 +345,191 @@ class TestInvestmentSector(TestCase):
         )
 
         self.assertEqual(str(sector), "Test")
+
+
+class TestPersonalCabinetView(APITestCase):
+    def setUp(self) -> None:
+        InvestmentSector.objects.create(sector="AI")
+
+        self.user = CustomUser.objects.create_user(
+            email='testuser@gmail.com',
+            password='testpassword')
+
+        from datetime import datetime, timedelta
+        self.one_year_term = datetime.now().date() + timedelta(days=365)
+
+        self.cabinet = PersonalCabinet.objects.create(
+            user=self.user,
+            first_name='John',
+            last_name='Doe',
+            partnership_code='12345BLA',
+            investment_sector='AI',
+            deposit_term=self.one_year_term,
+            interest_rate=5.0,
+        )
+
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+
+        self.url = '/api/personal-cabinet/'
+
+    def test_authenticated_user_can_access_personal_cabinet(self) -> None:
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access_token}')
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            "Full name": 'John Doe',
+            "Partnership code": '12345BLA',
+            "Investment sector": 'AI',
+            "Deposit term": self.one_year_term,
+            "Interest rate": 5.0,
+            "Referral partners": [],
+            "Deposit amount": 0.0,
+            "Dividends amount": 0.0
+        })
+
+    def test_unauthenticated_user_cannot_access_personal_cabinet(self) -> None:
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class TestAllInvestorsView(APITestCase):
+    def setUp(self) -> None:
+        self.admin_user = CustomUser.objects.create_superuser(email='admin@gmail.com',
+                                                              password='Adminpassword123')
+
+        self.user = CustomUser.objects.create_user(email='testuser@gmail.com',
+                                                   password='Testpassword123')
+
+        InvestmentSector.objects.create(sector="AI")
+
+        from datetime import datetime, timedelta
+        one_year_term = datetime.now().date() + timedelta(days=365)
+
+        self.cabinet = PersonalCabinet.objects.create(
+            user=self.user,
+            first_name='John',
+            last_name='Doe',
+            partnership_code='12345',
+            investment_sector='AI',
+            deposit_term=one_year_term,
+            interest_rate=5.3
+        )
+
+        self.serializer = AllInvestorsSerializer(instance=PersonalCabinet.objects.all(),
+                                                 many=True)
+
+        self.admin_access_token = str(RefreshToken.for_user(self.admin_user).access_token)
+        self.user_access_token = str(RefreshToken.for_user(self.user).access_token)
+
+    def test_admin_access(self) -> None:
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.admin_access_token}')
+
+        response = self.client.get('/api/get-all-investors/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {
+            f"{self.user}": {
+                "ID": self.cabinet.id,
+                "Full name": self.cabinet.full_name,
+                "Partnership code": self.cabinet.partnership_code,
+                "Investment sector": self.cabinet.investment_sector,
+                "Deposit term": self.cabinet.deposit_term,
+                "Interest rate": self.cabinet.interest_rate,
+                "Referral partners": self.cabinet.referral_partners_list,
+                "Deposit amount": self.cabinet.total_deposit_amount,
+                "Dividends amount": self.cabinet.received_dividends_amount
+            }
+        })
+
+    def test_non_admin_access(self) -> None:
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.user_access_token}')
+
+        response = self.client.get('/api/get-all-investors/')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data, {"Access denied": "Only admin can access to this data"})
+
+
+class TestCabinetUpdateView(APITestCase):
+    def setUp(self) -> None:
+        self.admin_user = CustomUser.objects.create_superuser(email='admin@gmail.com',
+                                                              password='Adminpassword123')
+
+        self.user = CustomUser.objects.create_user(email='testuser@gmail.com',
+                                                   password='Testpassword123')
+
+        InvestmentSector.objects.create(sector="AI")
+        InvestmentSector.objects.create(sector="Technology")
+
+        from datetime import datetime, timedelta
+        one_year_term = datetime.now().date() + timedelta(days=365)
+
+        self.cabinet = PersonalCabinet.objects.create(
+            user=self.user,
+            first_name='John',
+            last_name='Doe',
+            partnership_code='12345',
+            investment_sector='AI',
+            deposit_term=one_year_term,
+            interest_rate=5.3
+        )
+
+        self.admin_access_token = str(RefreshToken.for_user(self.admin_user).access_token)
+        self.user_access_token = str(RefreshToken.for_user(self.user).access_token)
+
+    def test_unauthenticated_user_update(self):
+        from datetime import datetime, timedelta
+        term = datetime.now().date() + timedelta(days=400)
+        data = {
+            'partnership_code': '456',
+            'investment_sector': 'Technology',
+            'deposit_term': term,
+        }
+
+        response = self.client.put(f"/api/cabinet-update/{self.cabinet.id}/",
+                                   data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_non_admin_access(self) -> None:
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.user_access_token}')
+
+        from datetime import datetime, timedelta
+        term = datetime.now().date() + timedelta(days=400)
+        data = {
+            'partnership_code': '456',
+            'investment_sector': 'Technology',
+            'deposit_term': term,
+        }
+        response = self.client.put(f"/api/cabinet-update/{self.cabinet.id}/",
+                                   data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.data, {
+            "Access denied": "Only admin can access to this data"
+        })
+
+    def test_admin_access(self) -> None:
+        self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.admin_access_token}')
+
+        from datetime import datetime, timedelta
+        term = datetime.now().date() + timedelta(days=400)
+        data = {
+            'partnership_code': '456PROMO',
+            'investment_sector': 'Technology',
+            'deposit_term': str(term),
+        }
+
+        response = self.client.put(f"/api/cabinet-update/{self.cabinet.id}/",
+                                   data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, data)
+
+        updated_cabinet = PersonalCabinet.objects.get(pk=self.cabinet.pk)
+        self.assertEqual(updated_cabinet.partnership_code, '456PROMO')
+        self.assertEqual(updated_cabinet.investment_sector, 'Technology')
+        self.assertEqual(str(updated_cabinet.deposit_term), str(term))
