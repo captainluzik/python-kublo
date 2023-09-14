@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import CustomUser, PersonalCabinet, InvestmentSector
+from .models import CustomUser, PersonalCabinet
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -8,8 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
     partnership_code = serializers.CharField(required=True)
-    investment_sector = serializers.ChoiceField(choices=InvestmentSector.objects.values_list('sector', flat=True),
-                                                required=True)
+    investment_sector = serializers.CharField(required=True)
     deposit_term = serializers.DateField(required=True)
     interest_rate = serializers.DecimalField(required=True, max_digits=9, decimal_places=5)
 

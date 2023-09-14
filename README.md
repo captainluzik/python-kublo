@@ -74,6 +74,7 @@ sudo docker-compose up --build --abort-on-container-exit
 
 
 ###4 Now, open your browser and go to ```http://0.0.0.0:80/swagger/```
+or ```http://0.0.0.0:80/redoc/```
 
 
 

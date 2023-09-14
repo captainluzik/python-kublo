@@ -122,11 +122,3 @@ class PersonalCabinet(models.Model):
 
     def __str__(self) -> str:
         return self.full_name
-
-
-class InvestmentSector(models.Model):
-    sector = models.CharField(unique=True, max_length=100, validators=[
-        MinLengthValidator(limit_value=2, message="Investment sector characters number should be greater than 2!")])
-
-    def __str__(self) -> str:
-        return f"{self.sector}"

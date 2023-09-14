@@ -7,7 +7,7 @@ from rest_framework import serializers, status
 from rest_framework.test import APITestCase
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import CustomUser, InvestmentSector, PersonalCabinet
+from .models import CustomUser, PersonalCabinet
 from .serializers import UserSerializer, AllInvestorsSerializer
 
 
@@ -141,7 +141,6 @@ class TestCustomUser(TestCase):
 
 class TestUserSerializer(TestCase):
     def setUp(self) -> None:
-        InvestmentSector.objects.create(sector="Test")
         self.email = 'test@gmail.com'
         self.password1 = self.password2 = 'Testpassword123'
 
@@ -205,8 +204,6 @@ class TestUserSerializer(TestCase):
 
 class TestUserCreationView(APITestCase):
     def setUp(self) -> None:
-        InvestmentSector.objects.create(sector="Test")
-
         from datetime import datetime, timedelta
         one_year_term = datetime.now().date() + timedelta(days=365)
 
@@ -272,8 +269,6 @@ class TestPersonalCabinet(TestCase):
             password="Testpassword123"
         )
 
-        InvestmentSector.objects.create(sector="AI")
-
         from datetime import datetime, timedelta
         one_year_term = datetime.now().date() + timedelta(days=365)
 
@@ -329,28 +324,8 @@ class TestPersonalCabinet(TestCase):
         self.assertEqual(str(self.personal_cabinet), self.personal_cabinet.full_name)
 
 
-class TestInvestmentSector(TestCase):
-
-    def test_create_sector(self) -> None:
-        sector = InvestmentSector.objects.create(
-            sector="Test"
-        )
-
-        self.assertEqual(InvestmentSector.objects.all().count(), 1)
-        self.assertIsNotNone(sector)
-
-    def test___str__(self) -> None:
-        sector = InvestmentSector.objects.create(
-            sector="Test"
-        )
-
-        self.assertEqual(str(sector), "Test")
-
-
 class TestPersonalCabinetView(APITestCase):
     def setUp(self) -> None:
-        InvestmentSector.objects.create(sector="AI")
-
         self.user = CustomUser.objects.create_user(
             email='testuser@gmail.com',
             password='testpassword')
@@ -403,8 +378,6 @@ class TestAllInvestorsView(APITestCase):
 
         self.user = CustomUser.objects.create_user(email='testuser@gmail.com',
                                                    password='Testpassword123')
-
-        InvestmentSector.objects.create(sector="AI")
 
         from datetime import datetime, timedelta
         one_year_term = datetime.now().date() + timedelta(days=365)
@@ -461,9 +434,6 @@ class TestCabinetUpdateView(APITestCase):
 
         self.user = CustomUser.objects.create_user(email='testuser@gmail.com',
                                                    password='Testpassword123')
-
-        InvestmentSector.objects.create(sector="AI")
-        InvestmentSector.objects.create(sector="Technology")
 
         from datetime import datetime, timedelta
         one_year_term = datetime.now().date() + timedelta(days=365)

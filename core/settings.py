@@ -160,12 +160,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
-FIXTURE_DIRS = [
-    'apps/myapp/fixtures/myapp/',
-]
-
 try:
     from .local import *
 except ImportError:
     pass
-
