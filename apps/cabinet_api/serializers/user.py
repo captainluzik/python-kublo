@@ -7,7 +7,7 @@ class PersonalAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalAccount
         fields = (
-            'id', 'partner_code', 'investment_sector', 'deposit_term', 'total_deposit_amount',
+            'id', 'partner_code', 'investment_sector', 'deposit_term_start', 'deposit_term_end', 'total_deposit_amount',
             'interest_rate', 'dividend_amount', 'partners',
         )
 

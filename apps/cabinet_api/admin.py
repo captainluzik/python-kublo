@@ -17,9 +17,9 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(PersonalAccount)
 class PersonalAccountAdmin(admin.ModelAdmin):
-    list_display = ('user', 'get_partners', 'deposit_term',
+    list_display = ('user', 'get_partners', 'deposit_term_start', 'deposit_term_end',
                     'total_deposit_amount', 'interest_rate', 'dividend_amount',)
-    list_filter = ('investment_sector', 'deposit_term',)
+    list_filter = ('investment_sector', 'deposit_term_start', 'deposit_term_end')
     search_fields = ('partner_code', 'user__email', 'investment_sector',)
     raw_id_fields = ('user', )
 

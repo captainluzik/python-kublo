@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.core import validators
-from django.db import models
+from django.db import models, transaction
 from django.utils.crypto import get_random_string
 
 from core import settings
@@ -44,10 +44,12 @@ class CustomUser(AbstractUser):
 
     def generate_unique_partner_code(self):
         """Method to make sure that generated random string is unique"""
-        while True:
+        with transaction.atomic():
             partner_code = get_random_string(10)
-            if not PersonalAccount.objects.filter(partner_code=partner_code).exists():
-                return partner_code
+            while PersonalAccount.objects.filter(partner_code=partner_code).exists():
+                partner_code = get_random_string(10)
+            PersonalAccount.objects.create(partner_code=partner_code)
+            return partner_code
 
     def save(self, *args, **kwargs):
         """Method override to create personal account model instance too"""
@@ -59,7 +61,6 @@ class CustomUser(AbstractUser):
                 user=self,
                 partner_code=self.generate_unique_partner_code(),
                 investment_sector="Default Sector",
-
             )
 
 
@@ -70,7 +71,8 @@ class PersonalAccount(models.Model):
     investment_sector = models.CharField(max_length=50, validators=[
         validators.MinLengthValidator(2, message="Investment sector should be at least 2 characters long"),
     ])
-    deposit_term = models.DurationField(default=timedelta(days=30))
+    deposit_term_start = models.DateField(null=True, help_text="Start date of investment term")
+    deposit_term_end = models.DateField(null=True, help_text="End date of investment term")
     total_deposit_amount = models.DecimalField(max_digits=20, decimal_places=10, default=0)
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     dividend_amount = models.DecimalField(max_digits=20, decimal_places=10, default=0)
@@ -85,6 +87,11 @@ class PersonalAccount(models.Model):
     @property
     def full_name(self):
         return f'{self.user.first_name} {self.user.last_name}'
+
+    @property
+    def deposit_term_duration(self):
+        return self.deposit_term_end - self.deposit_term_start \
+            if self.deposit_term_start and self.deposit_term_end else None
 
     def __str__(self):
         return f'{self.user.email} - {self.investment_sector}'
