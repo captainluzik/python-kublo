@@ -48,7 +48,7 @@ class CustomUser(AbstractUser):
             partner_code = get_random_string(10)
             while PersonalAccount.objects.filter(partner_code=partner_code).exists():
                 partner_code = get_random_string(10)
-            PersonalAccount.objects.create(partner_code=partner_code)
+
             return partner_code
 
     def save(self, *args, **kwargs):
