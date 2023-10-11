@@ -57,8 +57,8 @@ class CustomUser(AbstractUser):
 
         # check if user already have personal account and create one if it doesn't exist
         if not hasattr(self, 'account'):
-            PersonalAccount.objects.create(
-                user=self,
+            personal_account = PersonalAccount.objects.create(
+                user=self,  # Set the user field to the current user instance
                 partner_code=self.generate_unique_partner_code(),
                 investment_sector="Default Sector",
             )
