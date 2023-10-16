@@ -54,22 +54,6 @@ class UserCreateAPIView(generics.CreateAPIView):
 class UserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        return self.request.user
-
-    def put(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-
-class AdminUserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get_object(self):
@@ -82,4 +66,5 @@ class AdminUserRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

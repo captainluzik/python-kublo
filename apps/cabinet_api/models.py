@@ -65,12 +65,20 @@ class CustomUser(AbstractUser):
 
 
 class PersonalAccount(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='account', on_delete=models.CASCADE)
+    INVESTMENT_SECTOR_CHOICES = [
+        ('informational_technologies', 'Informational Technologies'),
+        ('technology', 'Technology'),
+        ('healthcare', 'Healthcare'),
+        ('financials', 'Financials'),
+        ('consumer', 'Consumer'),
+        ('industrials', 'Industrials'),
 
-    partner_code = models.CharField(max_length=10, unique=True)
-    investment_sector = models.CharField(max_length=50, validators=[
-        validators.MinLengthValidator(2, message="Investment sector should be at least 2 characters long"),
+    ]
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='account', on_delete=models.CASCADE)
+    partner_code = models.CharField(max_length=10, unique=True, validators=[
+        validators.MinLengthValidator(10, message="Partner code has to be exactly 10 characters long"),
     ])
+    investment_sector = models.CharField(max_length=50, choices=INVESTMENT_SECTOR_CHOICES)
     deposit_term_start = models.DateField(null=True, help_text="Start date of investment term")
     deposit_term_end = models.DateField(null=True, help_text="End date of investment term")
     total_deposit_amount = models.DecimalField(max_digits=20, decimal_places=10, default=0)
