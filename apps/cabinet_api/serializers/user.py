@@ -71,6 +71,9 @@ class UserSerializer(serializers.ModelSerializer):
         # TODO: maybe deposit duration has to be at least a month
         if deposit_term_start is None:
             # If this is first deposit term for a user
+            if new_deposit_term_end < timezone.now().date():
+                raise ValidationError("Invalid deposit term end date: Cannot set it in the past.")
+
             instance.deposit_term_start = timezone.now().date()
             instance.deposit_term_end = new_deposit_term_end
         else:
